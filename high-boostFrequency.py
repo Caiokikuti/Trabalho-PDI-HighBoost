@@ -30,9 +30,9 @@ def adicao(img1, sub):
 
 def highBoostFilter(img, order, corte, a):
     dft = np.fft.fft(img)
-    sdft = np.fft.fftshift(dft)
+    # sdft = np.fft.fftshift(dft)
 
-    magnitude = sdft
+    # magnitude = sdft
 
     row, col = img.shape
     HP = np.zeros(img.shape)
@@ -49,21 +49,21 @@ def highBoostFilter(img, order, corte, a):
             HP[i,j] = (a-1)+(1/demo)
     
     mask = np.ones((row, col), np.uint8)
-    r = 80
+    r = 120
     center = [crows, ccols]
     x, y = np.ogrid[:row, :col]
     mask_area = (x - center[0]) ** 2 + (y - center[1]) ** 2 <= r*r
     mask[mask_area] = 0 
     # mask = cv2.GaussianBlur(img, (11, 11), cv2.BORDER_DEFAULT)
-    # gauss_kernel = np.outer(3, signal.butter(img.shape[0], 'low'), signal.butter( 3, img.shape[1], 'low'))
+    # gauss_kernel = np.outer(signal.gaussian(img.shape[0],21), signal.gaussian(img.shape[1], 21))
 
-    HP = fp.fft2(fp.ifftshift(HP))
+    mask = fp.fft2(fp.ifftshift(mask))
 
-    magnitude = np.multiply(magnitude, HP)
+    multiply = np.multiply(dft, mask)
    
     shiftBack = np.fft.ifftshift(multiply)
-    back = np.fft.ifft(shiftBack)
-    final_image = np.abs(back)
+    # back = np.fft.ifft(shiftBack)
+    final_image = np.abs(shiftBack)
     final_image = final_image * 255 / final_image.max()
     # final_image = final_image.astype(np.uint8)
     x=np.array(final_image, dtype=np.uint8)
@@ -81,7 +81,7 @@ def main():
 
     nomeImagem = str(sys.argv[1])
     img1 = cv2.imread(nomeImagem, 0)
-    add = highBoostFilter(img1,1,50,1.5)
+    add = highBoostFilter(img1,1,80,1.5)
     # add = highBoost1(img1, 80)
     cv2.imshow('sem filtro',add)
     cv2.waitKey(0)
